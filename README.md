@@ -1,5 +1,7 @@
 # MoeKoe Music Helper [示例插件]
 
+> 该示例插件,不具备实际功能,仅供开发演示.点击右上角 `Use this template` 创建新的仓库开发你的插件
+
 MoeKoe Music Helper 是一个为 MoeKoe Music 放器设计的浏览器扩展插件，提供歌词翻译、音乐识别等便捷功能，提升你的音乐体验。
 
 ## 功能特性
