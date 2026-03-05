@@ -3,6 +3,10 @@
   "name": "MoeKoe Music Helper",
   "version": "1.0.0",
   "moekoe": true,
+  "author": {
+    "name": "MoeKoe Music",
+    "url": "https://music.moekoe.cn/"
+  },
   "description": "MoeKoe Music 助手插件 - 提供歌词翻译、音乐识别等功能",
   "permissions": [
     "storage",
