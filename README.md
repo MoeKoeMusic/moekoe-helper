@@ -48,8 +48,9 @@ icons/                // 插件图标
 - 歌词翻译和音乐识别目前为模拟实现，可根据需要接入第三方 API。
 - 内容脚本通过选择器提取音乐信息，如需适配不同播放器可调整选择器规则。
 
-### Chrome Extension：
+### 相关文档：
 - https://www.electronjs.org/docs/latest/api/extensions
+- https://developer.chrome.google.cn/docs/extensions/reference/api
 
 ## 许可协议
 
