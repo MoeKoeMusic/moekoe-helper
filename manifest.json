@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MoeKoe Music Helper",
+  "plugin_id": "",
   "version": "1.0.0",
   "moekoe": true,
   "author": {
