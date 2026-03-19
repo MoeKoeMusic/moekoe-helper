@@ -1,200 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoeKoe 示例助手</title>
   <style>
+    :root {
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      padding: 10px;
-      font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
+      width: 360px;
+      padding: 14px;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
     }
-    
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #007bff;
+
+    .panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
-    
-    .header h2 {
-      margin: 0;
-      color: #007bff;
-      font-size: 18px;
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 17px;
     }
-    
-    .header p {
-      margin: 5px 0 0 0;
-      color: #666;
+
+    .desc {
+      margin: 0 0 12px;
       font-size: 12px;
+      line-height: 1.5;
+      color: #4b5563;
     }
-    
+
     .section {
-      margin: 15px 0;
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #007bff;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
     }
-    
-    .section h3 {
-      margin: 0 0 10px 0;
-      color: #333;
-      font-size: 14px;
+
+    .row {
+      margin-top: 10px;
     }
-    
-    .info-item {
-      display: flex;
-      justify-content: space-between;
-      margin: 8px 0;
-      font-size: 13px;
-    }
-    
+
     .label {
-      font-weight: bold;
-      color: #555;
-    }
-    
-    .value {
-      color: #333;
-      max-width: 150px;
-      text-align: right;
-      word-break: break-all;
-    }
-    
-    .button {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-      margin: 8px 0;
+      display: block;
+      margin-bottom: 6px;
       font-size: 13px;
-      transition: background 0.3s;
+      font-weight: 600;
+      color: #374151;
     }
-    
-    .button:hover {
-      background: #0056b3;
+
+    .input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
     }
-    
-    .button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    
-    .button.secondary {
-      background: #6c757d;
-    }
-    
-    .button.secondary:hover {
-      background: #545b62;
-    }
-    
-    .status {
-      padding: 8px;
-      border-radius: 4px;
-      text-align: center;
-      font-size: 12px;
-      margin: 10px 0;
-    }
-    
-    .status.active {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    
-    .status.inactive {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    
-    .features {
-      margin-top: 15px;
-    }
-    
-    .feature-item {
+
+    .switch {
       display: flex;
       align-items: center;
-      margin: 8px 0;
+      gap: 8px;
+      font-size: 13px;
+      color: #1f2937;
+    }
+
+    .page-info {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f9fafb;
       font-size: 12px;
+      line-height: 1.45;
+      word-break: break-all;
+      color: #374151;
     }
-    
-    .feature-icon {
-      margin-right: 8px;
-      font-size: 14px;
+
+    .status {
+      min-height: 18px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #6b7280;
     }
-    
-    .loading {
-      text-align: center;
-      color: #666;
-      font-style: italic;
+
+    .status.success {
+      color: #15803d;
+    }
+
+    .status.error {
+      color: #b91c1c;
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h2>🎵 MoeKoe Music Helper</h2>
-    <p>音乐助手插件</p>
-  </div>
-  
-  <div class="status" id="status">
-    <span id="statusText">检测中...</span>
-  </div>
-  
-  <div class="section">
-    <h3>📊 当前音乐信息</h3>
-    <div class="info-item">
-      <span class="label">歌曲:</span>
-      <span class="value" id="trackTitle">-</span>
-    </div>
-    <div class="info-item">
-      <span class="label">艺术家:</span>
-      <span class="value" id="trackArtist">-</span>
-    </div>
-    <div class="info-item">
-      <span class="label">专辑:</span>
-      <span class="value" id="trackAlbum">-</span>
-    </div>
-    <div class="info-item">
-      <span class="label">时长:</span>
-      <span class="value" id="trackDuration">-</span>
-    </div>
-  </div>
-  
-  <div class="section">
-    <h3>🛠️ 功能操作</h3>
-    <button class="button" id="translateBtn">
-      🌐 翻译歌词
-    </button>
-    <button class="button" id="identifyBtn">
-      🔍 识别音乐
-    </button>
-    <button class="button secondary" id="refreshBtn">
-      🔄 刷新信息
-    </button>
-  </div>
-  
-  <div class="section">
-    <h3>⚡ 快捷键</h3>
-    <div class="features">
-      <div class="feature-item">
-        <span class="feature-icon">⌨️</span>
-        <span>Ctrl+Shift+H: 显示/隐藏控制面板</span>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🎯</span>
-        <span>自动检测音乐播放状态</span>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🔄</span>
-        <span>刷新音乐信息</span>
+  <div class="panel">
+    <h1>MoeKoe 示例助手</h1>
+    <p class="desc">
+      这是一个教学型示例插件：演示「配置存储」「消息通信」「内容脚本注入」的基本写法。
+    </p>
+
+    <div class="section">
+      <label class="switch">
+        <input id="enabledCheckbox" type="checkbox">
+        <span>启用页面右上角示例角标</span>
+      </label>
+
+      <div class="row">
+        <label for="badgeTextInput" class="label">角标文案</label>
+        <input id="badgeTextInput" class="input" type="text" maxlength="40" placeholder="请输入角标文案">
       </div>
     </div>
+
+    <div class="section">
+      <div class="label">最近页面状态</div>
+      <div id="pageInfo" class="page-info">正在读取...</div>
+    </div>
+
+    <div class="actions">
+      <button id="saveButton" class="primary">保存配置</button>
+      <button id="resetButton" class="secondary">恢复默认</button>
+    </div>
+
+    <div id="statusText" class="status"></div>
   </div>
-  
+
   <script src="popup.js"></script>
 </body>
 </html>

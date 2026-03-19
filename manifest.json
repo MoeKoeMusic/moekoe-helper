@@ -1,23 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "MoeKoe Music Helper",
-  "plugin_id": "",
-  "version": "1.0.0",
+  "name": "MoeKoe 插件示例助手",
+  "plugin_id": "moekoe-helper-demo",
+  "version": "1.1.0",
+  "minversion": null,
   "moekoe": true,
   "author": {
     "name": "MoeKoe Music",
     "url": "https://music.moekoe.cn/"
   },
-  "description": "MoeKoe Music 助手插件 - 提供歌词翻译、音乐识别等功能",
+  "description": "用于演示 MoeKoe 插件的基础结构、消息通信与配置存储。",
   "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
+    "storage"
   ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_end"
     }
   ],
@@ -26,7 +29,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "MoeKoe Music 助手"
+    "default_title": "MoeKoe 示例助手"
   },
   "icons": {
     "16": "icons/icon16.png",

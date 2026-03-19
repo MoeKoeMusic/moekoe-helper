@@ -1,191 +1,142 @@
-// MoeKoe Music Helper - 弹窗脚本
-document.addEventListener('DOMContentLoaded', function() {
-  const statusEl = document.getElementById('status');
-  const statusTextEl = document.getElementById('statusText');
-  const trackTitleEl = document.getElementById('trackTitle');
-  const trackArtistEl = document.getElementById('trackArtist');
-  const trackAlbumEl = document.getElementById('trackAlbum');
-  const trackDurationEl = document.getElementById('trackDuration');
-  
-  const translateBtn = document.getElementById('translateBtn');
-  const identifyBtn = document.getElementById('identifyBtn');
-  const refreshBtn = document.getElementById('refreshBtn');
-  
-  // 格式化时间
-  function formatTime(seconds) {
-    if (!seconds || seconds === 0) return '-';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+/**
+ * MoeKoe 示例插件 - 弹窗脚本
+ *
+ * 这里演示：
+ * 1. 向后台请求当前状态
+ * 2. 在弹窗编辑配置并保存
+ * 3. 在弹窗内展示内容脚本上报的页面信息
+ */
+
+const DEFAULT_SETTINGS = {
+  enabled: true,
+  badgeText: "示例插件已生效"
+};
+
+const enabledCheckbox = document.getElementById("enabledCheckbox");
+const badgeTextInput = document.getElementById("badgeTextInput");
+const pageInfo = document.getElementById("pageInfo");
+const saveButton = document.getElementById("saveButton");
+const resetButton = document.getElementById("resetButton");
+const statusText = document.getElementById("statusText");
+
+let currentSettings = { ...DEFAULT_SETTINGS };
+
+init().catch((error) => {
+  setStatus(`初始化失败: ${error.message}`, "error");
+});
+
+async function init() {
+  bindEvents();
+  await refreshState();
+}
+
+function bindEvents() {
+  saveButton.addEventListener("click", saveSettings);
+  resetButton.addEventListener("click", resetSettings);
+}
+
+async function refreshState() {
+  const response = await sendMessage({ type: "helper-demo:get-state" });
+  if (!response?.ok) {
+    setStatus(response?.message || "读取状态失败", "error");
+    return;
   }
-  
-  // 更新状态显示
-  function updateStatus(isActive, text) {
-    statusEl.className = `status ${isActive ? 'active' : 'inactive'}`;
-    statusTextEl.textContent = text;
+
+  currentSettings = normalizeSettings(response.data?.settings);
+  renderSettings();
+  renderPageState(response.data?.latestPageState || {});
+  setStatus("状态已同步", "success");
+}
+
+function renderSettings() {
+  enabledCheckbox.checked = currentSettings.enabled;
+  badgeTextInput.value = currentSettings.badgeText;
+}
+
+function renderPageState(state) {
+  const title = state.title || "-";
+  const url = state.url || "-";
+  const hasAppRoot = state.hasAppRoot ? "是" : "否";
+  const updatedAt = state.updatedAt
+    ? new Date(state.updatedAt).toLocaleString()
+    : "-";
+
+  pageInfo.innerHTML = [
+    `<div><strong>标题：</strong>${escapeHtml(title)}</div>`,
+    `<div><strong>URL：</strong>${escapeHtml(url)}</div>`,
+    `<div><strong>检测到 #app：</strong>${hasAppRoot}</div>`,
+    `<div><strong>更新时间：</strong>${escapeHtml(updatedAt)}</div>`
+  ].join("");
+}
+
+async function saveSettings() {
+  const next = normalizeSettings({
+    enabled: enabledCheckbox.checked,
+    badgeText: badgeTextInput.value
+  });
+
+  const response = await sendMessage({
+    type: "helper-demo:save-settings",
+    payload: next
+  });
+
+  if (!response?.ok) {
+    setStatus(response?.message || "保存失败", "error");
+    return;
   }
-  
-  // 更新音乐信息显示
-  function updateTrackInfo(trackInfo) {
-    if (trackInfo && trackInfo.title !== '未知歌曲') {
-      trackTitleEl.textContent = trackInfo.title || '-';
-      trackArtistEl.textContent = trackInfo.artist || '-';
-      trackAlbumEl.textContent = trackInfo.album || '-';
-      trackDurationEl.textContent = formatTime(trackInfo.duration);
-      
-      updateStatus(true, '✅ 已连接到 MoeKoe Music');
-    } else {
-      trackTitleEl.textContent = '-';
-      trackArtistEl.textContent = '-';
-      trackAlbumEl.textContent = '-';
-      trackDurationEl.textContent = '-';
-      
-      updateStatus(false, '⚠️ 未检测到音乐播放');
-    }
+
+  currentSettings = normalizeSettings(response.data);
+  renderSettings();
+  setStatus("保存成功", "success");
+}
+
+async function resetSettings() {
+  const response = await sendMessage({ type: "helper-demo:reset-settings" });
+  if (!response?.ok) {
+    setStatus(response?.message || "恢复默认失败", "error");
+    return;
   }
-  
-  // 获取当前音乐信息
-  function getCurrentTrackInfo() {
-    chrome.runtime.sendMessage({
-      action: 'getTrackInfo'
-    }, function(response) {
+
+  currentSettings = normalizeSettings(response.data);
+  renderSettings();
+  setStatus("已恢复默认配置", "success");
+}
+
+function normalizeSettings(raw) {
+  const next = raw && typeof raw === "object" ? raw : {};
+  return {
+    enabled: typeof next.enabled === "boolean" ? next.enabled : DEFAULT_SETTINGS.enabled,
+    badgeText: typeof next.badgeText === "string" && next.badgeText.trim()
+      ? next.badgeText.trim()
+      : DEFAULT_SETTINGS.badgeText
+  };
+}
+
+function sendMessage(message) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => {
       if (chrome.runtime.lastError) {
-        console.error('获取音乐信息失败:', chrome.runtime.lastError);
-        updateStatus(false, '❌ 插件连接失败');
+        resolve({
+          ok: false,
+          message: chrome.runtime.lastError.message
+        });
         return;
       }
-      
-      if (response && response.status === 'success') {
-        updateTrackInfo(response.data);
-      } else {
-        updateStatus(false, '⚠️ 获取信息失败');
-      }
+      resolve(response || { ok: false, message: "无响应" });
     });
-  }
-  
-  // 翻译歌词
-  function translateLyrics() {
-    translateBtn.disabled = true;
-    translateBtn.textContent = '🔄 翻译中...';
-    
-    // 获取当前标签页
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (tabs[0]) {
-        // 向内容脚本发送消息
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: 'getLyrics'
-        }, function(response) {
-          const lyrics = response?.lyrics || '示例歌词: Hello, this is a beautiful song about love and dreams.';
-          
-          // 发送到后台脚本进行翻译
-          chrome.runtime.sendMessage({
-            action: 'translateLyrics',
-            lyrics: lyrics
-          }, function(response) {
-            translateBtn.disabled = false;
-            translateBtn.textContent = '🌐 翻译歌词';
-            
-            if (response && response.status === 'success') {
-              // 显示翻译结果
-              const popup = document.createElement('div');
-              popup.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                max-width: 300px;
-                z-index: 10000;
-                border: 2px solid #007bff;
-              `;
-              
-              popup.innerHTML = `
-                <h4 style="margin: 0 0 10px 0; color: #007bff;">翻译结果</h4>
-                <p style="margin: 0 0 15px 0; font-size: 13px; line-height: 1.4;">${response.translation}</p>
-                <button onclick="this.parentElement.remove()" style="background: #007bff; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">关闭</button>
-              `;
-              
-              document.body.appendChild(popup);
-              
-              // 3秒后自动关闭
-              setTimeout(() => {
-                if (popup.parentElement) {
-                  popup.remove();
-                }
-              }, 3000);
-            } else {
-              alert('翻译失败，请稍后重试');
-            }
-          });
-        });
-      }
-    });
-  }
-  
-  // 识别音乐
-  function identifyMusic() {
-    identifyBtn.disabled = true;
-    identifyBtn.textContent = '🔍 识别中...';
-    
-    chrome.runtime.sendMessage({
-      action: 'identifyMusic'
-    }, function(response) {
-      identifyBtn.disabled = false;
-      identifyBtn.textContent = '🔍 识别音乐';
-      
-      if (response && response.status === 'success') {
-        const info = response.data;
-        const popup = document.createElement('div');
-        popup.style.cssText = `
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-          max-width: 300px;
-          z-index: 10000;
-          border: 2px solid #28a745;
-        `;
-        
-        popup.innerHTML = `
-          <h4 style="margin: 0 0 15px 0; color: #28a745;">🎵 音乐识别结果</h4>
-          <div style="font-size: 13px; line-height: 1.6;">
-            <p><strong>歌曲:</strong> ${info.title}</p>
-            <p><strong>艺术家:</strong> ${info.artist}</p>
-            <p><strong>专辑:</strong> ${info.album}</p>
-            <p><strong>类型:</strong> ${info.genre}</p>
-            <p><strong>年份:</strong> ${info.year}</p>
-            <p><strong>置信度:</strong> ${(info.confidence * 100).toFixed(1)}%</p>
-          </div>
-          <button onclick="this.parentElement.remove()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px;">关闭</button>
-        `;
-        
-        document.body.appendChild(popup);
-        
-        setTimeout(() => {
-          if (popup.parentElement) {
-            popup.remove();
-          }
-        }, 3000);
-      } else {
-        alert('音乐识别失败，请稍后重试');
-      }
-    });
-  }
-  
-  // 绑定按钮事件
-  translateBtn.addEventListener('click', translateLyrics);
-  identifyBtn.addEventListener('click', identifyMusic);
-  refreshBtn.addEventListener('click', getCurrentTrackInfo);
-  
-  // 初始化
-  getCurrentTrackInfo();
-  
-  console.log('MoeKoe Music Helper 弹窗已初始化');
-});
+  });
+}
+
+function setStatus(message, type = "") {
+  statusText.textContent = message;
+  statusText.className = `status ${type}`.trim();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

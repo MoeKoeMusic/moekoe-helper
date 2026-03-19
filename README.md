@@ -1,61 +1,67 @@
-# MoeKoe Music Helper [示例插件]
+# MoeKoe Music Helper（示例插件模板）
 
-> 该示例插件,不具备实际功能,仅供开发演示.点击右上角 `Use this template` 创建新的仓库开发你的插件
+这个项目是一个**教学型示例插件**，目标不是提供具体功能，而是演示 MoeKoe Music 插件开发中最常见的三件事：
 
-MoeKoe Music Helper 是一个为 MoeKoe Music 放器设计的浏览器扩展插件，提供歌词翻译、音乐识别等便捷功能，提升你的音乐体验。
+- 配置存储（`chrome.storage.local`）
+- 弹窗与后台通信（`chrome.runtime.sendMessage`）
+- 内容脚本注入与页面状态上报
 
-## 功能特性
+## 你可以从这个示例学到什么
 
-- **实时显示当前播放的音乐信息**（歌曲名、艺术家、专辑、时长）
-- **一键翻译歌词**（支持模拟翻译，可集成真实翻译 API）
-- **音乐识别**（模拟识别，可扩展为接入第三方识别服务）
-- **快捷键支持**（如 Ctrl+Shift+H 显示/隐藏控制面板）
-- **自动检测音乐播放状态**
-- **刷新音乐信息**
+1. `manifest.json` 如何规范声明字段
+2. `background.js` 如何作为消息中枢
+3. `content.js` 如何注入页面 UI 并响应配置变化
+4. `popup.js` 如何读写配置并展示状态
 
-## 文件结构
+## 目录结构
 
+```text
+moekoe-helper/
+├─ manifest.json        # 插件清单（含 plugin_id、minversion 示例）
+├─ background.js        # 后台脚本：默认配置、消息处理、状态保存
+├─ content.js           # 内容脚本：注入示例角标、上报页面状态
+├─ popup.html           # 弹窗页面（示例控制面板）
+├─ popup.js             # 弹窗逻辑（读取状态、保存配置）
+└─ icons/               # 插件图标
 ```
-background.js         // 后台脚本，负责数据存储和消息处理
-content.js            // 内容脚本，注入网页，提取音乐信息
-manifest.json         // 插件清单文件
-popup.html            // 弹窗页面
-popup.js              // 弹窗逻辑脚本
-icons/                // 插件图标
-```
 
-## 安装方法
+## 清单字段说明（重点）
 
-1. 放置至MoeKoe Music `plugins` 的插件目录中
-2. 重启 MoeKoe Music
+- `plugin_id`：插件唯一业务 ID
+- `version`：插件版本
+- `minversion`：最低支持的 MoeKoe Music 主程序版本（示例：`1.6.0`）可空
+- `moekoe`：标识为 MoeKoe Music 适配插件
 
-## 使用说明
+## 安装方式
 
-- 点击插件图标，弹出窗口会显示当前音乐信息和操作按钮。
-- 点击“翻译歌词”可获取当前页面歌词并翻译。
-- 点击“识别音乐”可模拟识别当前播放的音乐。
-- 点击“刷新信息”可手动刷新音乐信息。
-- 在网页端可使用 `Ctrl+Shift+H` 快捷键显示/隐藏悬浮控制面板。
+### 方式一：手动安装（本地开发常用）
 
-## 权限说明
+1. 将插件目录放入 MoeKoe Music 插件目录 `plugins/extensions/`
+2. 打开 MoeKoe Music 的插件管理页
+3. 点击刷新插件，或重启主程序
 
-- [`storage`](background.js )：用于保存插件设置
-- `activeTab`、`scripting`：用于与当前标签页交互
-- `<all_urls>`：内容脚本可在所有网页运行（可根据实际需求收窄范围）
+### 方式二：自动安装（插件市场）
 
-## 开发与扩展
+1. 把插件发布到 [插件市场源](https://github.com/MoeKoeMusic/MoeKoeMusic-Plugins)
+2. 在 MoeKoe Music 插件管理中进入“插件市场”
+3. 点击安装，程序会自动下载并安装 zip 包
 
-- 歌词翻译和音乐识别目前为模拟实现，可根据需要接入第三方 API。
-- 内容脚本通过选择器提取音乐信息，如需适配不同播放器可调整选择器规则。
+## 运行后你会看到什么
 
-### 相关文档：
-- https://www.electronjs.org/docs/latest/api/extensions
-- https://developer.chrome.google.cn/docs/extensions/reference/api
+- 页面右上角出现示例角标（可在弹窗中开关）
+- 弹窗中可修改角标文案并保存
+- 弹窗中可看到内容脚本上报的页面标题、URL、更新时间
 
-## 许可协议
+## 二次开发建议
 
-MIT License
+1. 在 `content.js` 中把“示例角标”替换成你的真实页面功能
+2. 在 `background.js` 中接入你自己的 API 逻辑（翻译、识别、同步等）
+3. 在 `popup.js` 中新增设置项，并统一走消息与存储
+4. 保持注释清晰：每个模块只做一类职责
 
----
+## 注意事项
 
-如有建议或问题，欢迎反馈与贡献！
+- 这是示例模板，默认功能简单，便于你快速改造
+- 如果你新增权限，请同步更新 `manifest.json`
+- 如果插件需要特定主程序能力，请提高 `minversion`
+- 某些插件可能会对页面进行注入，需刷新页面才能生效
