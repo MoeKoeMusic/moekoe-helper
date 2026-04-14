@@ -25,7 +25,16 @@
     console.error("[helper-demo] 内容脚本初始化失败:", error);
   });
 
+  const isExcludedRoute = () => /^#\/?(lyrics|video)(?:[/?]|$)/i.test(window.location.hash || "");
+
   async function init() {
+    // 跳过排除的页面,如果你的插件是对主窗口生效,请跳过附属窗口
+    // 因为exclude_matches不支持匹配 #hash 部分,只能通过js跳过
+    if (isExcludedRoute()) {
+      console.log("[helper-demo] 当前页面在排除列表中，已跳过");
+      return;
+    }
+
     settings = await readSettings();
     applyBadge(settings);
     reportPageState();
