@@ -6,6 +6,8 @@
 - 弹窗与后台通信（`chrome.runtime.sendMessage`）
 - 内容脚本注入与页面状态上报
 
+拥有二进制执行能力的进阶插件 [moekoe-native-host-demo](https://github.com/MoeKoeMusic/moekoe-native-host-demo)
+
 ## 你可以从这个示例学到什么
 
 1. `manifest.json` 如何规范声明字段
@@ -34,17 +36,23 @@ moekoe-helper/
 
 ## 安装方式
 
-### 方式一：手动安装（本地开发常用）
+### 方式一：自动安装（推荐）
 
-1. 将插件目录放入 MoeKoe Music 插件目录 `plugins/extensions/`
-2. 打开 MoeKoe Music 的插件管理页
-3. 点击刷新插件，或重启主程序
+适用场景：插件已上架到 MoeKoe [插件市场](https://github.com/MoeKoeMusic/MoeKoeMusic-Plugins)。
 
-### 方式二：自动安装（插件市场）
+1. 打开 `设置 -> 插件管理`
+2. 切换到 `插件市场`
+3. 搜索插件并点击 `安装`
+4. 安装完成后刷新页面或重启应用
 
-1. 把插件发布到 [插件市场源](https://github.com/MoeKoeMusic/MoeKoeMusic-Plugins)
-2. 在 MoeKoe Music 插件管理中进入“插件市场”
-3. 点击安装，程序会自动下载并安装 zip 包
+### 方式二：手动安装（本地开发常用）
+
+1. 从 GitHub 下载本项目源码（`Code -> Download ZIP`）
+2. 安装方式二选一：
+   - 复制解压后的文件夹到 MoeKoe 插件目录（`plugins/extensions`），然后在插件管理中刷新
+   - 将该下载的 `zip` 文件，在 `设置 -> 插件管理 -> 安装插件` 中选择 zip 安装
+3. 安装完成后刷新页面或重启应用
+
 
 ## 运行后你会看到什么
 
